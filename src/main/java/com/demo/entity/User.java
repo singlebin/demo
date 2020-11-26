@@ -2,7 +2,10 @@ package com.demo.entity;
 
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @description:
@@ -10,6 +13,9 @@ import lombok.Data;
  * @Date: 2020/11/25 16:00
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class User {
 
     @ExcelProperty(value = "id" /*, converter = YesOrNoConvert.class*/)
