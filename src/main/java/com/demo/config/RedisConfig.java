@@ -6,10 +6,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.RedisNode;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
@@ -30,11 +32,20 @@ import java.util.Set;
  */
 @Configuration
 @EnableConfigurationProperties(RedisConfigProperties.class)
-@AllArgsConstructor
+//@PropertySource("classpath:/application.yml")
 public class RedisConfig {
 
     private final RedisConfigProperties properties;
 
+    @Value("${spring.redis.cluster.nodes}")
+    private String clusterNodes;
+
+    @Value("${spring.redis.cluster.maxRedirectsac}")
+    private Integer maxRedirectsac = 3;
+
+    public RedisConfig(RedisConfigProperties properties) {
+        this.properties = properties;
+    }
 
     @Bean
     public JedisPoolConfig jedisPoolConfig() {
@@ -59,9 +70,13 @@ public class RedisConfig {
     }
 
 
-    @Bean
-    public JedisConnectionFactory jedisConnectionFactory(JedisPoolConfig jedisPoolConfig) {
+    /**
+     * 配置工厂 （单机版）
+     */
+    @Bean(name = "jedisConnectionFactory1")
+    public JedisConnectionFactory jedisConnectionFactory1(JedisPoolConfig jedisPoolConfig, RedisClusterConfiguration redisClusterConfiguration) {
 
+        //单机版
         RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration();
         redisConfig.setHostName(properties.getHost());
         redisConfig.setPort(properties.getPort());
@@ -76,14 +91,28 @@ public class RedisConfig {
     }
 
     /**
+     * 配置工厂 （集群版）
+     */
+    @Bean(name = "jedisConnectionFactory2")
+    public JedisConnectionFactory jedisConnectionFactory2(JedisPoolConfig jedisPoolConfig, RedisClusterConfiguration redisClusterConfiguration) {
+        //集群版
+        return new JedisConnectionFactory(redisClusterConfiguration, jedisPoolConfig);
+    }
+
+    /**
      * 实例化redisTemplate
      *
      * @return redisTemplate
      */
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(JedisPoolConfig jedisPoolConfig) {
+    public RedisTemplate<String, Object> redisTemplate(JedisPoolConfig jedisPoolConfig, RedisClusterConfiguration redisClusterConfiguration) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(jedisConnectionFactory(jedisPoolConfig));
+
+        //单机版
+        //template.setConnectionFactory(jedisConnectionFactory1(jedisPoolConfig));
+
+        //集群版
+        template.setConnectionFactory(jedisConnectionFactory2(jedisPoolConfig, redisClusterConfiguration));
 
         Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
         ObjectMapper objectMapper = new ObjectMapper();
@@ -111,22 +140,22 @@ public class RedisConfig {
      * @return RedisClusterConfiguration
      * @throws
      */
-//    @Bean
-//    public RedisClusterConfiguration redisClusterConfiguration() {
-//        RedisClusterConfiguration redisClusterConfiguration = new RedisClusterConfiguration();
-//        //Set<RedisNode> clusterNodes
-//        String[] serverArray = clusterNodes.split(",");
-//
-//        Set<RedisNode> nodes = new HashSet<>();
-//
-//        for (String ipPort : serverArray) {
-//            String[] ipAndPort = ipPort.split(":");
-//            nodes.add(new RedisNode(ipAndPort[0].trim(), Integer.valueOf(ipAndPort[1])));
-//        }
-//
-//        redisClusterConfiguration.setClusterNodes(nodes);
-//        redisClusterConfiguration.setMaxRedirects(maxRedirectsac);
-//
-//        return redisClusterConfiguration;
-//    }
+    @Bean
+    public RedisClusterConfiguration redisClusterConfiguration() {
+        RedisClusterConfiguration redisClusterConfiguration = new RedisClusterConfiguration();
+        //Set<RedisNode> clusterNodes
+        String[] serverArray = clusterNodes.split(",");
+
+        Set<RedisNode> nodes = new HashSet<>();
+
+        for (String ipPort : serverArray) {
+            String[] ipAndPort = ipPort.split(":");
+            nodes.add(new RedisNode(ipAndPort[0].trim(), Integer.valueOf(ipAndPort[1])));
+        }
+
+        redisClusterConfiguration.setClusterNodes(nodes);
+        redisClusterConfiguration.setMaxRedirects(maxRedirectsac);
+
+        return redisClusterConfiguration;
+    }
 }

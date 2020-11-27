@@ -1,3 +1,5 @@
+server:
+  port: 8080
 spring:
   application:
     name: demo
@@ -25,9 +27,20 @@ spring:
 
   # 集群模式
   redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 0
+    password:
+    maxTotal: 120
+    maxIdle: 10
+    maxWaitMillis: 500
+    socketTimeout: 5000
+    timeBetweenEvictionRunsMillis: 30000
+    minEvictableIdleTimeMillis: 30000
+    testOnBorrow: true
+    testWhileIdle: true
+    numTestsPerEvictionRun: 1024
     cluster:
       nodes: 172.16.13.226:7000,172.16.13.226:7001,172.16.13.226:7002,172.16.13.227:7000,172.16.13.227:7001,172.16.13.227:7002
-      max-redirects: 3
+      maxRedirectsac: 3
 
-server:
-  port: 8080
