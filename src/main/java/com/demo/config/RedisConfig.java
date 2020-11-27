@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -14,8 +13,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.RedisNode;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
-import org.springframework.data.redis.connection.jedis.JedisClientConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
@@ -32,7 +29,7 @@ import java.util.Set;
  */
 @Configuration
 @EnableConfigurationProperties(RedisConfigProperties.class)
-//@PropertySource("classpath:/application.yml")
+@PropertySource(value = "classpath:/config/redis.yml", factory = YamlPropertySourceFactory.class)
 public class RedisConfig {
 
     private final RedisConfigProperties properties;
@@ -73,22 +70,22 @@ public class RedisConfig {
     /**
      * 配置工厂 （单机版）
      */
-    @Bean(name = "jedisConnectionFactory1")
-    public JedisConnectionFactory jedisConnectionFactory1(JedisPoolConfig jedisPoolConfig, RedisClusterConfiguration redisClusterConfiguration) {
-
-        //单机版
-        RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration();
-        redisConfig.setHostName(properties.getHost());
-        redisConfig.setPort(properties.getPort());
-        redisConfig.setPassword(properties.getPassword());
-        redisConfig.setDatabase(properties.getDatabase());
-
-        JedisClientConfiguration clientConfig = JedisClientConfiguration.builder()
-                .usePooling()
-                .poolConfig(jedisPoolConfig)
-                .and().build();
-        return new JedisConnectionFactory(redisConfig, clientConfig);
-    }
+//    @Bean(name = "jedisConnectionFactory1")
+//    public JedisConnectionFactory jedisConnectionFactory1(JedisPoolConfig jedisPoolConfig, RedisClusterConfiguration redisClusterConfiguration) {
+//
+//        //单机版
+//        RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration();
+//        redisConfig.setHostName(properties.getHost());
+//        redisConfig.setPort(properties.getPort());
+//        redisConfig.setPassword(properties.getPassword());
+//        redisConfig.setDatabase(properties.getDatabase());
+//
+//        JedisClientConfiguration clientConfig = JedisClientConfiguration.builder()
+//                .usePooling()
+//                .poolConfig(jedisPoolConfig)
+//                .and().build();
+//        return new JedisConnectionFactory(redisConfig, clientConfig);
+//    }
 
     /**
      * 配置工厂 （集群版）

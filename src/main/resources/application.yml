@@ -9,38 +9,20 @@ spring:
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-  # 单机版redis
-  #  redis:
-  #    host: 127.0.0.1
-  #    port: 6379
-  #    database: 0
-  #    password:
-  #    maxTotal: 120
-  #    maxIdle: 10
-  #    maxWaitMillis: 500
-  #    socketTimeout: 5000
-  #    timeBetweenEvictionRunsMillis: 30000
-  #    minEvictableIdleTimeMillis: 30000
-  #    testOnBorrow: true
-  #    testWhileIdle: true
-  #    numTestsPerEvictionRun: 1024
 
-  # 集群模式
-  redis:
-    host: 127.0.0.1
-    port: 6379
-    database: 0
-    password:
-    maxTotal: 120
-    maxIdle: 10
-    maxWaitMillis: 500
-    socketTimeout: 5000
-    timeBetweenEvictionRunsMillis: 30000
-    minEvictableIdleTimeMillis: 30000
-    testOnBorrow: true
-    testWhileIdle: true
-    numTestsPerEvictionRun: 1024
-    cluster:
-      nodes: 172.16.13.226:7000,172.16.13.226:7001,172.16.13.226:7002,172.16.13.227:7000,172.16.13.227:7001,172.16.13.227:7002
-      maxRedirectsac: 3
-
+#mytabis-plus 配置
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*Mapper.xml
+  type-aliases-package: com.demo.entity
+  global-config:
+    db-config:
+      id-type: 2
+      field-strategy: 2
+      table-underline: true
+logging:
+  config: classpath:logback-file.xml
+  level:
+    com.demo.mapper: debug
+logback:
+  logFileDir: /data/logs/demo
+  logFile: demo
