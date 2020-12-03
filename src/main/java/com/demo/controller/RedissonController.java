@@ -2,8 +2,8 @@ package com.demo.controller;
 
 import com.demo.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.scheduling.annotation.Async;
+import org.redisson.Redisson;
+import org.redisson.api.RLock;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 public class RedissonController {
 
     private final RedisUtil redisUtil;
+    private final Redisson redisson;
     private final String SOTCK_KEY = "stock:key:";
 
     /**
@@ -30,12 +31,17 @@ public class RedissonController {
      */
     @GetMapping("/buy")
     public void buy() {
-
         int sum = (int) redisUtil.getCacheObject(SOTCK_KEY);
+        RLock lock = redisson.getLock(SOTCK_KEY);
         // 扣减库存
         if (sum > 0) {
+            lock.lock();
             int count = sum - 1;
-            redisUtil.setCacheObject(SOTCK_KEY, count, 10, TimeUnit.SECONDS);
+            redisUtil.setCacheObject(SOTCK_KEY, count, 1000, TimeUnit.SECONDS);
+            System.out.println("扣减库存成功，剩余库存count = " + count);
+
+        } else {
+            System.out.println("扣减库存失败，库存不足");
         }
     }
 
