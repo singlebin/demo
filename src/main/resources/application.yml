@@ -26,3 +26,9 @@ logging:
 logback:
   logFileDir: /data/logs/demo
   logFile: demo
+
+#关闭 actuator 对 elasticsearch 的健康检查
+management:
+  health:
+    elasticsearch:
+      enabled: false

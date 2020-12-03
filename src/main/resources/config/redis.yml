@@ -18,8 +18,8 @@ spring:
 
   # 集群模式
   redis:
-    host: 127.0.0.1
-    port: 6379
+    host: 172.16.13.226
+    port: 7000
     database: 0
     password:
     maxTotal: 120

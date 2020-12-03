@@ -2,6 +2,8 @@ package com.demo.controller;
 
 import com.demo.service.EasyExcelService;
 import com.sun.org.apache.xpath.internal.operations.Mult;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 @RestController
 @RequestMapping("/excel")
 @RequiredArgsConstructor
+@Api(tags = "easyExcel相关操作接口")
 public class EasyExcelController {
 
     private final EasyExcelService easyExcelService;
@@ -27,6 +30,7 @@ public class EasyExcelController {
      * 导出
      */
     @GetMapping("/export")
+    @ApiOperation("导出")
     public String export(HttpServletResponse response) {
         easyExcelService.export(response);
         return "OK";
@@ -36,6 +40,7 @@ public class EasyExcelController {
      * 导入
      */
     @GetMapping("/importExcel")
+    @ApiOperation("导入")
     public String importExcel(@RequestParam("file") MultipartFile file) {
         easyExcelService.importExcel(file);
         return "OK";
